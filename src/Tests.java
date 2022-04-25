@@ -63,6 +63,8 @@ public class Tests {
 		test_basic_4_change_order_1();
 		test_basic_4_change_order_2();
 		test_basic_4_change_order_3();
+
+		randomTest();
 	}
 
 	private void test_book_lane_invalid_number_1() {
@@ -271,6 +273,26 @@ public class Tests {
 
 		assertResult(3);
 	}
+
+	private void randomTest() {
+		System.out.println("Random test");
+		System.out.println("Expected behaviour: 17 players login to Jane should be allow to return and rest of player waiting");
+		setUp();
+
+		playerLogin("Fred", 4);
+		tenPinManager.bookLane("Jane", 15);
+		playerLogin("Fred", 4);
+		playerLogin("Fred", 4);
+		tenPinManager.bookLane("Jane", 2);
+		tenPinManager.bookLane("Fred", 15);
+		playerLogin("Jane", 4);
+		playerLogin("Jane", 4);
+		playerLogin("Jane", 4);
+		playerLogin("Jane", 4);
+		playerLogin("Jane", 1);
+
+		assertResult(17);
+	}
 	
 	private void playerLogin(String bookerName, int numberPlayer) {
 		for (int i=0; i < numberPlayer; i++) {
@@ -296,7 +318,7 @@ public class Tests {
 
 	private void threadSleepUntilAllThreadReturnOrExceedTimeOut(int expectedValue) {
 		int testTimeout = 10; //mS
-		int maximumTestTimeOut = 10000; //ms
+		int maximumTestTimeOut = 100; //ms
 
 		// Now wait for player threads to do their thing:
 		int timeSpent = 0;

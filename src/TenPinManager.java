@@ -23,18 +23,19 @@
  * 
  */
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class TenPinManager implements Manager {
 	private class BookerManager {
-		private final ArrayList<Booker> listBooker = new ArrayList<>();
+		// Key : Booker's name
+		private final HashMap<String, Booker> listBooker = new HashMap<>();
 		private final ReentrantLock lock = new ReentrantLock();
 		private final Condition noBookerFound = lock.newCondition();
 
-		void addBooker(String bookerName, int nPlayers) {
+		void bookLane(String bookerName, int nPlayers) {
 			Booker booker = getBooker(bookerName);
 			if (booker == null) {
 				addBooker(new Booker(bookerName, nPlayers));
@@ -51,7 +52,7 @@ public class TenPinManager implements Manager {
 		private void addBooker(Booker booker) {
 			lock.lock();
 
-			listBooker.add(booker);
+			listBooker.put(booker.name, booker);
 			noBookerFound.signalAll();
 
 			lock.unlock();
@@ -72,17 +73,13 @@ public class TenPinManager implements Manager {
 		}
 
 		private Booker getBooker(String bookerName) {
-			for (Booker booker : listBooker) {
-				if (bookerName.equals(booker.name)) {
-					return booker;
-				}
-			}
-			return null;
+			return listBooker.get(bookerName);
 		}
 	}
 
 	private class Booker {
 		private final String name;
+		// Using linkedList to assure the FIFO process
 		private final LinkedList<Booking> bookings;
 
 		private final ReentrantLock lock;
@@ -179,7 +176,7 @@ public class TenPinManager implements Manager {
 
 	@Override
 	public void bookLane(String bookersName, int nPlayers) {
-		bookerManager.addBooker(bookersName, nPlayers);
+		bookerManager.bookLane(bookersName, nPlayers);
 	}
 
 	@Override
